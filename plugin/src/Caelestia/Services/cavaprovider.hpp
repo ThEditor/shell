@@ -1,24 +1,25 @@
 #pragma once
 
-#include "audiocollector.hpp"
 #include "audioprovider.hpp"
 #include <cava/cavacore.h>
 #include <qqmlintegration.h>
 
-namespace caelestia {
+namespace caelestia::services {
 
 class CavaProcessor : public AudioProcessor {
     Q_OBJECT
 
 public:
-    explicit CavaProcessor(AudioCollector* collector, QObject* parent = nullptr);
+    explicit CavaProcessor(QObject* parent = nullptr);
     ~CavaProcessor();
+
+    void setBars(int bars);
 
 signals:
     void valuesChanged(QVector<double> values);
 
 protected:
-    void setCollector(AudioCollector* collector) override;
+    void process() override;
 
 private:
     struct cava_plan* m_plan;
@@ -28,13 +29,9 @@ private:
     int m_bars;
     QVector<double> m_values;
 
-    Q_INVOKABLE void setBars(int bars);
-
     void reload();
     void initCava();
     void cleanup();
-
-    void process() override;
 };
 
 class CavaProvider : public AudioProvider {
@@ -64,4 +61,4 @@ private:
     void updateValues(QVector<double> values);
 };
 
-} // namespace caelestia
+} // namespace caelestia::services

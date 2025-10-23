@@ -16,7 +16,7 @@ StyledRect {
 
     required property string modelData
 
-    readonly property list<var> notifs: Notifs.list.filter(notif => notif.appName === modelData).reverse()
+    readonly property list<var> notifs: Notifs.list.filter(notif => notif.appName === modelData)
     readonly property string image: notifs.find(n => n.image.length > 0)?.image ?? ""
     readonly property string appIcon: notifs.find(n => n.appIcon.length > 0)?.appIcon ?? ""
     readonly property string urgency: notifs.some(n => n.urgency === NotificationUrgency.Critical) ? "critical" : notifs.some(n => n.urgency === NotificationUrgency.Normal) ? "normal" : "low"
@@ -30,11 +30,6 @@ StyledRect {
     clip: true
     radius: Appearance.rounding.normal
     color: root.urgency === "critical" ? Colours.palette.m3secondaryContainer : Colours.layer(Colours.palette.m3surfaceContainerHigh, 2)
-
-    RetainableLock {
-        object: root.notifs[0]?.notiftication ?? null
-        locked: true
-    }
 
     RowLayout {
         id: content
@@ -229,6 +224,27 @@ StyledRect {
                             to: notif.implicitHeight
                         }
                     }
+
+                    ParallelAnimation {
+                        running: notif.modelData.closed
+                        onFinished: notif.modelData.unlock(notif)
+
+                        Anim {
+                            target: notif
+                            property: "opacity"
+                            to: 0
+                        }
+                        Anim {
+                            target: notif
+                            property: "scale"
+                            to: 0.7
+                        }
+                        Anim {
+                            target: notif.Layout
+                            property: "preferredHeight"
+                            to: 0
+                        }
+                    }
                 }
             }
 
@@ -287,10 +303,8 @@ StyledRect {
         }
         color: root.urgency === "critical" ? Colours.palette.m3onSecondaryContainer : Colours.palette.m3onSurface
 
-        RetainableLock {
-            object: notifLine.modelData.notification
-            locked: true
-        }
+        Component.onCompleted: modelData.lock(this)
+        Component.onDestruction: modelData.unlock(this)
 
         TextMetrics {
             id: metrics

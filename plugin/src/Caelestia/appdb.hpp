@@ -3,6 +3,8 @@
 #include <qhash.h>
 #include <qobject.h>
 #include <qqmlintegration.h>
+#include <qqmllist.h>
+#include <qtimer.h>
 
 namespace caelestia {
 
@@ -16,13 +18,13 @@ class AppEntry : public QObject {
 
     Q_PROPERTY(quint32 frequency READ frequency NOTIFY frequencyChanged)
     Q_PROPERTY(QString id READ id CONSTANT)
-    Q_PROPERTY(QString name READ name CONSTANT)
-    Q_PROPERTY(QString desc READ desc CONSTANT)
-    Q_PROPERTY(QString execString READ execString CONSTANT)
-    Q_PROPERTY(QString wmClass READ wmClass CONSTANT)
-    Q_PROPERTY(QString genericName READ genericName CONSTANT)
-    Q_PROPERTY(QString categories READ categories CONSTANT)
-    Q_PROPERTY(QString keywords READ keywords CONSTANT)
+    Q_PROPERTY(QString name READ name NOTIFY nameChanged)
+    Q_PROPERTY(QString comment READ comment NOTIFY commentChanged)
+    Q_PROPERTY(QString execString READ execString NOTIFY execStringChanged)
+    Q_PROPERTY(QString startupClass READ startupClass NOTIFY startupClassChanged)
+    Q_PROPERTY(QString genericName READ genericName NOTIFY genericNameChanged)
+    Q_PROPERTY(QString categories READ categories NOTIFY categoriesChanged)
+    Q_PROPERTY(QString keywords READ keywords NOTIFY keywordsChanged)
 
 public:
     explicit AppEntry(QObject* entry, quint32 frequency, QObject* parent = nullptr);
@@ -35,15 +37,22 @@ public:
 
     [[nodiscard]] QString id() const;
     [[nodiscard]] QString name() const;
-    [[nodiscard]] QString desc() const;
+    [[nodiscard]] QString comment() const;
     [[nodiscard]] QString execString() const;
-    [[nodiscard]] QString wmClass() const;
+    [[nodiscard]] QString startupClass() const;
     [[nodiscard]] QString genericName() const;
     [[nodiscard]] QString categories() const;
     [[nodiscard]] QString keywords() const;
 
 signals:
     void frequencyChanged();
+    void nameChanged();
+    void commentChanged();
+    void execStringChanged();
+    void startupClassChanged();
+    void genericNameChanged();
+    void categoriesChanged();
+    void keywordsChanged();
 
 private:
     QObject* m_entry;
@@ -56,8 +65,8 @@ class AppDb : public QObject {
 
     Q_PROPERTY(QString uuid READ uuid CONSTANT)
     Q_PROPERTY(QString path READ path WRITE setPath NOTIFY pathChanged REQUIRED)
-    Q_PROPERTY(QList<QObject*> entries READ entries WRITE setEntries NOTIFY entriesChanged REQUIRED)
-    Q_PROPERTY(QList<AppEntry*> apps READ apps NOTIFY appsChanged)
+    Q_PROPERTY(QObjectList entries READ entries WRITE setEntries NOTIFY entriesChanged REQUIRED)
+    Q_PROPERTY(QQmlListProperty<caelestia::AppEntry> apps READ apps NOTIFY appsChanged)
 
 public:
     explicit AppDb(QObject* parent = nullptr);
@@ -67,10 +76,10 @@ public:
     [[nodiscard]] QString path() const;
     void setPath(const QString& path);
 
-    [[nodiscard]] QList<QObject*> entries() const;
-    void setEntries(const QList<QObject*>& entries);
+    [[nodiscard]] QObjectList entries() const;
+    void setEntries(const QObjectList& entries);
 
-    [[nodiscard]] QList<AppEntry*> apps() const;
+    [[nodiscard]] QQmlListProperty<AppEntry> apps();
 
     Q_INVOKABLE void incrementFrequency(const QString& id);
 
@@ -80,11 +89,15 @@ signals:
     void appsChanged();
 
 private:
+    QTimer* m_timer;
+
     const QString m_uuid;
     QString m_path;
-    QList<QObject*> m_entries;
+    QObjectList m_entries;
     QHash<QString, AppEntry*> m_apps;
+    mutable QList<AppEntry*> m_sortedApps;
 
+    QList<AppEntry*>& getSortedApps() const;
     quint32 getFrequency(const QString& id) const;
     void updateAppFrequencies();
     void updateApps();

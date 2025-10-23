@@ -17,8 +17,24 @@ ColumnLayout {
     required property BarPopouts.Wrapper popouts
     readonly property int vPadding: Appearance.padding.large
 
+    function closeTray(): void {
+        if (!Config.bar.tray.compact)
+            return;
+
+        for (let i = 0; i < repeater.count; i++) {
+            const item = repeater.itemAt(i);
+            if (item?.enabled && item.id === "tray") {
+                item.item.expanded = false;
+            }
+        }
+    }
+
     function checkPopout(y: real): void {
         const ch = childAt(width / 2, y) as WrappedLoader;
+
+        if (ch?.id !== "tray")
+            closeTray();
+
         if (!ch) {
             popouts.hasCurrent = false;
             return;
@@ -29,7 +45,7 @@ ColumnLayout {
         const item = ch.item;
         const itemHeight = item.implicitHeight;
 
-        if (id === "statusIcons") {
+        if (id === "statusIcons" && Config.bar.popouts.statusIcons) {
             const items = item.items;
             const icon = items.childAt(items.width / 2, mapToItem(items, 0, y).y);
             if (icon) {
@@ -37,15 +53,22 @@ ColumnLayout {
                 popouts.currentCenter = Qt.binding(() => icon.mapToItem(root, 0, icon.implicitHeight / 2).y);
                 popouts.hasCurrent = true;
             }
-        } else if (id === "tray") {
-            const index = Math.floor(((y - top) / itemHeight) * item.items.count);
-            const trayItem = item.items.itemAt(index);
-            if (trayItem) {
-                popouts.currentName = `traymenu${index}`;
-                popouts.currentCenter = Qt.binding(() => trayItem.mapToItem(root, 0, trayItem.implicitHeight / 2).y);
-                popouts.hasCurrent = true;
+        } else if (id === "tray" && Config.bar.popouts.tray) {
+            if (!Config.bar.tray.compact || (item.expanded && !item.expandIcon.contains(mapToItem(item.expandIcon, item.implicitWidth / 2, y)))) {
+                const index = Math.floor(((y - top - item.padding * 2 + item.spacing) / item.layout.implicitHeight) * item.items.count);
+                const trayItem = item.items.itemAt(index);
+                if (trayItem) {
+                    popouts.currentName = `traymenu${index}`;
+                    popouts.currentCenter = Qt.binding(() => trayItem.mapToItem(root, 0, trayItem.implicitHeight / 2).y);
+                    popouts.hasCurrent = true;
+                } else {
+                    popouts.hasCurrent = false;
+                }
+            } else {
+                popouts.hasCurrent = false;
+                item.expanded = true;
             }
-        } else if (id === "activeWindow") {
+        } else if (id === "activeWindow" && Config.bar.popouts.activeWindow) {
             popouts.currentName = id.toLowerCase();
             popouts.currentCenter = item.mapToItem(root, 0, itemHeight / 2).y;
             popouts.hasCurrent = true;

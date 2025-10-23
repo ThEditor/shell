@@ -1,31 +1,28 @@
 #pragma once
 
-#include "audiocollector.hpp"
 #include "audioprovider.hpp"
 #include <aubio/aubio.h>
 #include <qqmlintegration.h>
 
-namespace caelestia {
+namespace caelestia::services {
 
 class BeatProcessor : public AudioProcessor {
     Q_OBJECT
 
 public:
-    explicit BeatProcessor(AudioCollector* collector, QObject* parent = nullptr);
+    explicit BeatProcessor(QObject* parent = nullptr);
     ~BeatProcessor();
 
 signals:
     void beat(smpl_t bpm);
 
 protected:
-    void setCollector(AudioCollector* collector) override;
+    void process() override;
 
 private:
     aubio_tempo_t* m_tempo;
     fvec_t* m_in;
     fvec_t* m_out;
-
-    void process() override;
 };
 
 class BeatTracker : public AudioProvider {
@@ -49,4 +46,4 @@ private:
     void updateBpm(smpl_t bpm);
 };
 
-} // namespace caelestia
+} // namespace caelestia::services

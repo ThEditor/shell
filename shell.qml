@@ -13,7 +13,13 @@ ShellRoot {
     Background {}
     Drawers {}
     AreaPicker {}
-    Lock {}
+    Lock {
+        id: lock
+    }
 
     Shortcuts {}
+    BatteryMonitor {}
+    IdleMonitors {
+        lock: lock
+    }
 }

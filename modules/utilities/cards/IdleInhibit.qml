@@ -12,7 +12,7 @@ StyledRect {
     implicitHeight: layout.implicitHeight + (IdleInhibitor.enabled ? activeChip.implicitHeight + activeChip.anchors.topMargin : 0) + Appearance.padding.large * 2
 
     radius: Appearance.rounding.normal
-    color: Colours.palette.m3surfaceContainer
+    color: Colours.tPalette.m3surfaceContainer
     clip: true
 
     RowLayout {
@@ -117,6 +117,9 @@ StyledRect {
     }
 
     Behavior on implicitHeight {
-        Anim {}
+        Anim {
+            duration: Appearance.anim.durations.expressiveDefaultSpatial
+            easing.bezierCurve: Appearance.anim.curves.expressiveDefaultSpatial
+        }
     }
 }

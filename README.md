@@ -225,6 +225,7 @@ default, you must create it manually.
         },
         "font": {
             "family": {
+                "clock": "Rubik",
                 "material": "Material Symbols Rounded",
                 "mono": "CaskaydiaCove NF",
                 "sans": "Rubik"
@@ -251,7 +252,52 @@ default, you must create it manually.
     "general": {
         "apps": {
             "terminal": ["foot"],
-            "audio": ["pavucontrol"]
+            "audio": ["pavucontrol"],
+            "playback": ["mpv"],
+            "explorer": ["thunar"]
+        },
+        "battery": {
+            "warnLevels": [
+                {
+                    "level": 20,
+                    "title": "Low battery",
+                    "message": "You might want to plug in a charger",
+                    "icon": "battery_android_frame_2"
+                },
+                {
+                    "level": 10,
+                    "title": "Did you see the previous message?",
+                    "message": "You should probably plug in a charger <b>now</b>",
+                    "icon": "battery_android_frame_1"
+                },
+                {
+                    "level": 5,
+                    "title": "Critical battery level",
+                    "message": "PLUG THE CHARGER RIGHT NOW!!",
+                    "icon": "battery_android_alert",
+                    "critical": true
+                }
+            ],
+            "criticalLevel": 3
+        },
+        "idle": {
+            "lockBeforeSleep": true,
+            "inhibitWhenAudio": true,
+            "timeouts": [
+                {
+                    "timeout": 180,
+                    "idleAction": "lock"
+                },
+                {
+                    "timeout": 300,
+                    "idleAction": "dpms off",
+                    "returnAction": "dpms on"
+                },
+                {
+                    "timeout": 600,
+                    "idleAction": ["systemctl", "suspend-then-hibernate"]
+                }
+            ]
         }
     },
     "background": {
@@ -260,6 +306,7 @@ default, you must create it manually.
         },
         "enabled": true,
         "visualiser": {
+            "blur": false,
             "enabled": false,
             "autoHide": true,
             "rounding": 1,
@@ -310,6 +357,11 @@ default, you must create it manually.
             }
         ],
         "persistent": true,
+        "popouts": {
+            "activeWindow": true,
+            "statusIcons": true,
+            "tray": true
+        },
         "scrollActions": {
             "brightness": true,
             "workspaces": true,
@@ -327,6 +379,7 @@ default, you must create it manually.
         },
         "tray": {
             "background": false,
+            "compact": false,
             "iconSubs": [],
             "recolour": false
         },
@@ -339,7 +392,13 @@ default, you must create it manually.
             "occupiedLabel": "󰮯",
             "perMonitorWorkspaces": true,
             "showWindows": true,
-            "shown": 5
+            "shown": 5,
+            "specialWorkspaceIcons": [
+                {
+                    "name": "steam",
+                    "icon": "sports_esports"
+                }
+            ]
         }
     },
     "border": {
@@ -499,6 +558,7 @@ default, you must create it manually.
     },
     "services": {
         "audioIncrement": 0.1,
+        "maxVolume": 1.0,
         "defaultPlayer": "Spotify",
         "gpuType": "",
         "playerAliases": [{ "from": "com.github.th_ch.youtube_music", "to": "YT Music" }],
@@ -510,6 +570,7 @@ default, you must create it manually.
     },
     "session": {
         "dragThreshold": 30,
+        "enabled": true,
         "vimKeybinds": false,
         "commands": {
             "logout": ["loginctl", "terminate-user", ""],
@@ -518,8 +579,36 @@ default, you must create it manually.
             "reboot": ["systemctl", "reboot"]
         }
     },
-    "utilities": {
+    "sidebar": {
+        "dragThreshold": 80,
         "enabled": true
+    },
+    "utilities": {
+        "enabled": true,
+        "maxToasts": 4,
+        "toasts": {
+            "audioInputChanged": true,
+            "audioOutputChanged": true,
+            "capsLockChanged": true,
+            "chargingChanged": true,
+            "configLoaded": true,
+            "dndChanged": true,
+            "gameModeChanged": true,
+            "kbLayoutChanged": true,
+            "numLockChanged": true,
+            "vpnChanged": true,
+            "nowPlaying": false
+        },
+        "vpn": {
+            "enabled": false,
+            "provider": [
+                {
+                    "name": "wireguard",
+                    "interface": "your-connection-name",
+                    "displayName": "Wireguard (Your VPN)"
+                }
+            ]
+        }
     }
 }
 ```
