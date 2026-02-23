@@ -14,8 +14,6 @@ Item {
     property string source: Wallpapers.current
     property Image current: one
 
-    anchors.fill: parent
-
     onSourceChanged: {
         if (!source)
             current = null;
@@ -34,7 +32,6 @@ Item {
         anchors.fill: parent
 
         active: !root.source
-        asynchronous: true
 
         sourceComponent: StyledRect {
             color: Colours.palette.m3surfaceContainer
